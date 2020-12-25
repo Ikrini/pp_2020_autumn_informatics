@@ -1,7 +1,22 @@
-message(STATUS "Report")
+get_filename_component(ProjectId ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-SUBDIRLIST(subdirs ${CMAKE_CURRENT_SOURCE_DIR})
+set(LATEX_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin/")
 
-foreach(subd ${subdirs})
-  add_subdirectory(${subd})
-endforeach()
+if ( USE_LATEX )
+    message( STATUS "-- " ${ProjectId} )
+    file(GLOB_RECURSE report_files "*.tex")
+
+    get_filename_component(report_names ${report_files} NAME)
+    add_latex_document(${report_names})
+
+    add_custom_command(
+            TARGET ${ProjectId}_pdf
+            POST_BUILD
+            COMMAND rm ${LATEX_OUTPUT_PATH}/*.aux
+            COMMAND rm ${LATEX_OUTPUT_PATH}/*.log
+            COMMAND rm ${LATEX_OUTPUT_PATH}/*.tex
+    )
+
+else( USE_LATEX )
+    message( STATUS "-- ${ProjectId} - NOT BUILD!"  )
+endif( USE_LATEX )
